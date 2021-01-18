@@ -1,5 +1,7 @@
 #include "shader.h"
 
+#include <iostream>
+
 Shader::~Shader() {
     glDeleteProgram(_program);
     for (GLuint shader: _shaders) {
@@ -7,7 +9,42 @@ Shader::~Shader() {
     }
 }
 
-bool Shader::loadShader(GLenum shaderType, const char* filename) {
+bool Shader::loadProgram(const char* vertex_file, const char* frag_file) {
+    GLuint vert = loadShader(GL_VERTEX_SHADER, vertex_file);
+    GLuint frag = loadShader(GL_FRAGMENT_SHADER, frag_file);
+
+    GLint status;
+    glGetShaderiv(vert, GL_COMPILE_STATUS, &status);
+    if (status != GL_TRUE) return false;
+    glGetShaderiv(frag, GL_COMPILE_STATUS, &status);
+    if (status != GL_TRUE) return false;
+
+    GLuint program = glCreateProgram();
+    glAttachShader(program, vert);
+    glAttachShader(program, frag);
+
+    glBindFragDataLocation(program, 0, "outColor");
+    glLinkProgram(program);
+
+    GLint isLinked;
+    glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
+    if (isLinked != GL_TRUE) return false;
+
+    if (_shaders.size()) {
+        glDeleteProgram(_program);
+        for (GLuint shader: _shaders) {
+            glDeleteShader(shader);
+        }
+        _shaders.clear();
+    }
+    _shaders.push_back(vert);
+    _shaders.push_back(frag);
+    _program = program;
+
+    return true;
+}
+
+GLuint Shader::loadShader(GLenum shaderType, const char* filename) {
     std::ifstream inVertex(filename);
     std::string shaderContents((std::istreambuf_iterator<char>(inVertex)), std::istreambuf_iterator<char>());
     const char* shaderSource = shaderContents.c_str();
@@ -15,11 +52,8 @@ bool Shader::loadShader(GLenum shaderType, const char* filename) {
     GLuint shader = glCreateShader(shaderType);
     glShaderSource(shader, 1, &shaderSource, NULL);
     glCompileShader(shader);
-    _shaders.push_back(shader);
 
-    GLint status;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-    return status == GL_TRUE;
+    return shader;
 }
 
 bool Shader::createProgram() {

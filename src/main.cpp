@@ -79,23 +79,12 @@ int main() {
     glEnable(GL_CULL_FACE);
 
     Shader shader;
-    if (!shader.loadShader(GL_VERTEX_SHADER, "shaders/main.vert")) {
-        std::cout << "Main Vertex Shader Failed To Compile" << std::endl;
-        return 0;
-    }
-    if (!shader.loadShader(GL_FRAGMENT_SHADER, "shaders/main.frag")) {
-        std::cout << "Main Fragment Shader Failed To Compile" << std::endl;
-        return 0;
-    }
-    if (!shader.createProgram()) {
-        std::cout << "Main Shader Failed To Link" << std::endl;
-        return 0;
-    }
+    shader.loadProgram("shaders/main.vert", "shaders/main.frag");
     shader.use();
 
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
-        std::cout << "Error" << std::endl;
+        std::cout << "Error_" << err << std::endl;
     }
 
     float screenVerticies[30] = {
@@ -123,7 +112,7 @@ int main() {
 
     err = glGetError();
     if (err != GL_NO_ERROR) {
-        std::cout << "Error" << std::endl;
+        std::cout << "Error__" << std::endl;
     }
 
     glm::vec3 pos = glm::vec3(0.f, 0.f, 8.f);
@@ -136,20 +125,23 @@ int main() {
         //viewDir = glm::rotateY(viewDir, rot.y);
         viewDir = glm::rotateX(viewDir, rot.z);
         
+        if (glfwGetKey(window, GLFW_KEY_R)) {
+            shader.loadProgram("shaders/main.vert", "shaders/main.frag");
+        }
+        shader.use();
         glUniform3f(shader.getUniformLocation("cameraPos"), pos.x, pos.y, pos.z);
         glUniform3f(shader.getUniformLocation("viewDir"), viewDir.x, viewDir.y, viewDir.z);
 
         // draw
         glClearColor(0, 0, 0, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        shader.use();
 
         glBindVertexArray(screenVAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
         err = glGetError();
         if (err != GL_NO_ERROR) {
-            std::cout << "Error" << std::endl;
+            std::cout << "Error___" << std::endl;
         }
 
         glfwSwapBuffers(window);

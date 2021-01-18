@@ -9,12 +9,13 @@
 class Shader {
 public:
     ~Shader();
-    bool loadShader(GLenum shaderType, const char* filename);
-    bool createProgram();
+    bool loadProgram(const char* vertex_file, const char* frag_file);
     void use();
     GLuint getAttributeLocation(const char* name);
     GLuint getUniformLocation(const char* name);
 private:
+    GLuint loadShader(GLenum shaderType, const char* filename);
+    bool createProgram();
     std::vector<GLuint> _shaders;
     GLuint _program;
 };
