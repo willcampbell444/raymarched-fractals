@@ -23,7 +23,7 @@ const float roty = 0.5f;
 const mat3 rott = mat3(cos(roty), 0, -sin(roty),
                        0,         1, 0,
                        sin(roty), 0, cos(roty));
-const float scale=4.f;
+const float scale=4.0f;
 const float bailout=1000.f;
 float SDF(vec3 P) {
     //vec3 q = abs(P) - 1.f;

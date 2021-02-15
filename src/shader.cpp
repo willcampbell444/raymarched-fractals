@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+using namespace std::experimental;
+
 Shader::~Shader() {
     glDeleteProgram(_program);
     for (GLuint shader: _shaders) {
@@ -40,6 +42,9 @@ bool Shader::loadProgram(const char* vertex_file, const char* frag_file) {
     _shaders.push_back(vert);
     _shaders.push_back(frag);
     _program = program;
+
+    _vertFile = vertex_file;
+    _fragFile = frag_file;
 
     return true;
 }
@@ -81,4 +86,25 @@ GLuint Shader::getAttributeLocation(const char* name) {
 
 GLuint Shader::getUniformLocation(const char* name) {
     return glGetUniformLocation(_program, name);
+}
+
+bool Shader::reloadIfNeeded() {
+    try {
+        for (auto &filename : std::vector<std::string>{_vertFile, _fragFile}) {
+            auto file = filesystem::path(filename);
+            auto current_file_last_write_time = filesystem::last_write_time(file);
+    
+            if(!_filetimes.count(file.string())) {
+                _filetimes[file.string()] = current_file_last_write_time;
+            } else {
+                if(_filetimes[file.string()] != current_file_last_write_time) {
+                    _filetimes[file.string()] = current_file_last_write_time;
+                    loadProgram(_vertFile.c_str(), _fragFile.c_str());
+                }
+            }
+        }
+    } catch (...) {
+        return false;
+    }
+    return false;
 }
