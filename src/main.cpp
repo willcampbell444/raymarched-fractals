@@ -6,6 +6,10 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtx/rotate_vector.hpp>
@@ -71,6 +75,21 @@ int main() {
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
 
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsClassic();
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 130");
+
     glewExperimental = GL_TRUE;
     glewInit();
 
@@ -118,6 +137,14 @@ int main() {
     glm::vec3 pos = glm::vec3(0.f, 0.f, 8.f);
     glm::vec3 rot = glm::vec3(0.f);
     while (!glfwWindowShouldClose(window)) {
+         // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        bool show_demo_window = true;
+        ImGui::ShowDemoWindow(&show_demo_window);
+
         pos += vel*0.033f;
         rot += dirVel*0.0033f;
         glm::vec3 viewDir = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -143,6 +170,10 @@ int main() {
         if (err != GL_NO_ERROR) {
             std::cout << "Error___" << std::endl;
         }
+
+        // Rendering
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
         glfwPollEvents();
