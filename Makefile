@@ -10,12 +10,15 @@ LIBS = -lGL -lglfw -lGLEW -DGLEW_STATIC -lstdc++fs
 
 CC=g++ -std=c++17 -g -pthread 
 
-all: build/main.o build/shader.o $(OBJS)
+all: build/main.o build/shader.o build/options.o $(OBJS)
     #$(CC) $^ $(CXXFLAGS) $(LIBS)
-	$(CC) build/shader.o build/main.o $(OBJS) $(LIBS)
+	$(CC) build/options.o build/shader.o build/main.o $(OBJS) $(LIBS)
 
-build/shader.o: src/shader.cpp src/shader.h imgui build
+build/shader.o: src/shader.cpp src/shader.h build
 	$(CC) -c src/shader.cpp -o build/shader.o
+
+build/options.o: src/options.cpp src/options.h build
+	$(CC) $(CXXFLAGS) -c src/options.cpp -o build/options.o
 
 build/main.o: src/main.cpp src/shader.h imgui build
 	$(CC) $(CXXFLAGS) -c src/main.cpp -o build/main.o

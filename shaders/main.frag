@@ -7,6 +7,9 @@ in mat3 viewRot;
 out vec4 outColor;
 
 uniform vec3 cameraPos = vec3(0.0f, 0.0f, 8.0f);
+#option float(test 0 1 2)
+#option color(myColor 0.3 0.8 1.0)
+//uniform vec3 myColor = vec3(0.3, 0.8, 1);
 
 const int WINDOW_WIDTH = 1600;
 const int WINDOW_HEIGHT = 900;
@@ -97,7 +100,7 @@ vec3 color(vec3 start, vec3 dir) {
         vec3 norm = calcNormal(P, t);
         //return vec3(0.3f, 0.8f, 1.0f)*(0.4+0.4*clamp(dot(norm, lightDir), 0.0, 1.0));
         // ssao
-        return vec3(0.3f, 0.8f, 1.0f)*(exp(-res.w*0.01f)*0.8f+0.4*clamp(dot(norm, lightDir), 0.0, 1.0));
+        return test*myColor*(exp(-res.w*0.01f)*0.8f+0.4*clamp(dot(norm, lightDir), 0.0, 1.0));
         // distance fog
         //exp(-t*0.01)
     }

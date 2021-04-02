@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <experimental/filesystem>
 
+class Option;
+
 class Shader {
 public:
     ~Shader();
@@ -16,6 +18,8 @@ public:
     GLuint getAttributeLocation(const char* name);
     GLuint getUniformLocation(const char* name);
     bool reloadIfNeeded();
+
+    std::vector<std::unique_ptr<Option>> options;
 private:
     GLuint loadShader(GLenum shaderType, const char* filename);
     bool createProgram();

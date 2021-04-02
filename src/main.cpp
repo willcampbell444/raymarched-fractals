@@ -10,6 +10,8 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+#include "options.h"
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtx/rotate_vector.hpp>
@@ -142,8 +144,16 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        bool show_demo_window = true;
-        ImGui::ShowDemoWindow(&show_demo_window);
+        //bool show_demo_window = true;
+        //ImGui::ShowDemoWindow(&show_demo_window);
+        for (auto& opt : shader.options) {
+            opt->show();
+            if (opt->dirty)
+            {
+                opt->upload(shader, opt->name);
+                opt->dirty = false;
+            }
+        }
 
         pos += vel*0.033f;
         rot += dirVel*0.0033f;

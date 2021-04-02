@@ -1,5 +1,7 @@
 #include "shader.h"
 
+#include "options.h"
+
 #include <iostream>
 
 using namespace std::experimental;
@@ -12,14 +14,22 @@ Shader::~Shader() {
 }
 
 bool Shader::loadProgram(const char* vertex_file, const char* frag_file) {
+    options.clear();
+
     GLuint vert = loadShader(GL_VERTEX_SHADER, vertex_file);
     GLuint frag = loadShader(GL_FRAGMENT_SHADER, frag_file);
 
     GLint status;
     glGetShaderiv(vert, GL_COMPILE_STATUS, &status);
-    if (status != GL_TRUE) return false;
+    if (status != GL_TRUE) {
+        std::cout << "Vertex shader failed to compile" << std::endl;
+        return false;
+    }
     glGetShaderiv(frag, GL_COMPILE_STATUS, &status);
-    if (status != GL_TRUE) return false;
+    if (status != GL_TRUE) {
+        std::cout << "Fragment shader failed to compile" << std::endl;
+        return false;
+    }
 
     GLuint program = glCreateProgram();
     glAttachShader(program, vert);
@@ -50,8 +60,30 @@ bool Shader::loadProgram(const char* vertex_file, const char* frag_file) {
 }
 
 GLuint Shader::loadShader(GLenum shaderType, const char* filename) {
-    std::ifstream inVertex(filename);
-    std::string shaderContents((std::istreambuf_iterator<char>(inVertex)), std::istreambuf_iterator<char>());
+    std::ifstream in(filename);
+
+    // preprocess
+    std::string line;
+    std::stringstream out;
+    while (!in.eof()) {
+        std::getline(in, line);
+
+        bool replaced = false;
+        if (line.size() && line[0] == '#') {
+            if (line.find("option") == 1) {
+                auto opt = Option::FromString(line.substr(8));
+                if (opt) {
+                    opt->serialize(out);
+                    options.push_back(std::move(opt));
+                }
+                replaced = true;
+            }
+        }
+        if (!replaced)
+            out << line << std::endl;
+    }
+
+    std::string shaderContents = out.str();
     const char* shaderSource = shaderContents.c_str();
 
     GLuint shader = glCreateShader(shaderType);
