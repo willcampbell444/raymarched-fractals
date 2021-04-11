@@ -18,8 +18,8 @@
 
 #include "shader.h"
 
-const int SCR_WIDTH = 1600;
-const int SCR_HEIGHT = 900;
+int SCR_WIDTH = 900;
+int SCR_HEIGHT = 900;
 
 glm::vec3 vel;
 glm::vec3 dirVel;
@@ -61,6 +61,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
+void resize_callback(GLFWwindow* window, int width, int height) {
+    glViewport(0,0,width,height);
+    SCR_WIDTH = width;
+    SCR_HEIGHT = height;
+}
+
 int main() {
 
     glfwInit();
@@ -70,12 +76,13 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
     glfwWindowHint(GLFW_SAMPLES, 8);
 
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "OpenGL", nullptr, nullptr);
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
+    glfwSetFramebufferSizeCallback(window, resize_callback);
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -168,6 +175,7 @@ int main() {
         shader.use();
         glUniform3f(shader.getUniformLocation("cameraPos"), pos.x, pos.y, pos.z);
         glUniform3f(shader.getUniformLocation("viewDir"), viewDir.x, viewDir.y, viewDir.z);
+        glUniform1f(shader.getUniformLocation("RATIO"), (float)SCR_WIDTH/SCR_HEIGHT);
 
         // draw
         glClearColor(0, 0, 0, 1.0f);
