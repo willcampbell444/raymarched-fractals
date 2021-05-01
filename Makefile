@@ -10,30 +10,30 @@ LIBS = -lGL -lglfw -lGLEW -DGLEW_STATIC -lstdc++fs
 
 CC=g++ -std=c++17 -g -pthread 
 
+#$(info $(shell mkdir -p build))
+$(shell mkdir -p build)
+
 all: build/main.o build/shader.o build/options.o $(OBJS)
     #$(CC) $^ $(CXXFLAGS) $(LIBS)
 	$(CC) build/options.o build/shader.o build/main.o $(OBJS) $(LIBS)
 
-build/shader.o: src/shader.cpp src/shader.h build
+build/shader.o: src/shader.cpp src/shader.h
 	$(CC) -c src/shader.cpp -o build/shader.o
 
-build/options.o: src/options.cpp src/options.h build
+build/options.o: src/options.cpp src/options.h
 	$(CC) $(CXXFLAGS) -c src/options.cpp -o build/options.o
 
-build/main.o: src/main.cpp src/shader.h imgui build
+build/main.o: src/main.cpp src/shader.h imgui
 	$(CC) $(CXXFLAGS) -c src/main.cpp -o build/main.o
 
-build/%.o:$(IMGUI_DIR)/%.cpp imgui build
+build/%.o: $(IMGUI_DIR)/%.cpp imgui
 	$(CC) $(CXXFLAGS) -c -o $@ $<
 
-build/%.o:$(IMGUI_DIR)/backends/%.cpp imgui build
+build/%.o: $(IMGUI_DIR)/backends/%.cpp imgui
 	$(CC) $(CXXFLAGS) -c -o $@ $<
 
 imgui:
 	git clone https://github.com/ocornut/imgui.git
-
-build:
-	mkdir build
 
 clean:
 	rm -r build

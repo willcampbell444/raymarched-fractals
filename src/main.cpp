@@ -67,7 +67,7 @@ void resize_callback(GLFWwindow* window, int width, int height) {
     SCR_HEIGHT = height;
 }
 
-int main() {
+int main(int argc, const char** argv) {
 
     glfwInit();
 
@@ -107,7 +107,15 @@ int main() {
     glEnable(GL_CULL_FACE);
 
     Shader shader;
-    shader.loadProgram("shaders/main.vert", "shaders/main.frag");
+    if (argc > 1)
+    {
+        std::string frag_name = std::string("shaders/")+argv[1];
+        shader.loadProgram("shaders/main.vert", frag_name.c_str());
+    }
+    else
+    {
+        shader.loadProgram("shaders/main.vert", "shaders/main.frag");
+    }
     shader.use();
 
     GLenum err = glGetError();

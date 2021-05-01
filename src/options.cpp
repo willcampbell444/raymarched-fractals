@@ -19,6 +19,10 @@ std::unique_ptr<Option> Option::FromString(std::string s) {
         index = s.find("color");
         length = strlen("color");
         opt = std::make_unique<OptColor>();
+    } else if (s.find("vec3") != std::string::npos) {
+        index = s.find("vec3");
+        length = strlen("vec3");
+        opt = std::make_unique<OptVec>();
     } else {
         return nullptr;
     }
@@ -67,12 +71,18 @@ void OptVec::reset() {
 	dirty = true;
 }
 void OptVec::serialize(std::ostream& out) const {
-	out << val.x << " " << val.y << " " << val.z << std::endl;
+	out << "uniform vec3 " << name << " = vec3("
+        << def[0] << ", " << def[1] << ", " << def[2] << ");" << std::endl;
 }
 void OptVec::deserialize(std::istream& in) {
-	in >> def.x;
-	in >> def.y;
-	in >> def.z;
+    in >> name;
+    in >> min;
+    in >> max;
+    in >> def[0];
+	in >> def[1];
+    in >> def[2];
+    m = 1.0;
+    norm = false;
 	reset();
 }
 OptVec2::OptVec2(std::string name, glm::vec2 def, float min, float max,
